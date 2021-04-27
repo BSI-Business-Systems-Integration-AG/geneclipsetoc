@@ -2,7 +2,7 @@
 :blog: https://www.bsi-software.com/en/scout-blog/article/generating-eclipse-help-from-existing-html-documentation.html
 :wikitext: https://wiki.eclipse.org/Mylyn/WikiText
 :bug478466: https://bugs.eclipse.org/bugs/show_bug.cgi?id=478466
-:issues: https://github.com/jmini/geneclipsetoc/issues
+:issues: https://github.com/bsi-software/geneclipsetoc/issues
 :license: http://www.eclipse.org/legal/epl-v10.html
 
 = geneclipsetoc-maven-plugin

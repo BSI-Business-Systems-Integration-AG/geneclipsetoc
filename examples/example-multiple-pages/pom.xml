@@ -1,6 +1,6 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
- 
+
   <groupId>com.bsiag.geneclipsetoc</groupId>
   <artifactId>example-multiple-pages</artifactId>
   <version>0.0.1-SNAPSHOT</version>
@@ -8,14 +8,8 @@
 
   <pluginRepositories>
     <pluginRepository>
-      <id>bintray.jmini.maven</id>
-      <url>http://dl.bintray.com/jmini/maven/</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
+      <id>geneclipsetoc-maven-plugin</id>
+      <url>https://bsi-software.github.io/geneclipsetoc/</url>
     </pluginRepository>
   </pluginRepositories>
 
@@ -24,7 +18,7 @@
       <plugin>
         <groupId>com.bsiag.geneclipsetoc</groupId>
         <artifactId>geneclipsetoc-maven-plugin</artifactId>
-        <version>1.0.2</version>
+        <version>1.0.3-SNAPSHOT</version>
         <executions>
           <execution>
             <phase>generate-resources</phase>

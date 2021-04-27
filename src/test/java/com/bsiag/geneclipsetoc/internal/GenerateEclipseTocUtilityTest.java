@@ -14,13 +14,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.mylyn.wikitext.core.parser.outline.OutlineItem;
+import org.eclipse.mylyn.wikitext.parser.outline.OutlineItem;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -29,8 +32,6 @@ import org.junit.Test;
 
 import com.bsiag.geneclipsetoc.internal.contexts.Context;
 import com.bsiag.geneclipsetoc.maven.HelpContext;
-import com.google.common.base.Charsets;
-import com.google.common.io.Files;
 
 public class GenerateEclipseTocUtilityTest {
 
@@ -206,11 +207,11 @@ public class GenerateEclipseTocUtilityTest {
 
   @Test
   public void testComputeContexts() throws Exception {
-    File rootInFolder = Files.createTempDir();
-    File file1 = new File(rootInFolder, "page1.html");
-    Files.write("tmp1", file1, Charsets.UTF_8);
-    File file2 = new File(rootInFolder, "page2.html");
-    Files.write("tmp2", file2, Charsets.UTF_8);
+    Path rootInFolder = Files.createTempDirectory("geneclipsetoc-test");
+    Path file1 = rootInFolder.resolve("page1.html");
+    Files.write(file1, "tmp1".getBytes(StandardCharsets.UTF_8));
+    Path file2 = rootInFolder.resolve("page2.html");
+    Files.write(file2, "tmp2".getBytes(StandardCharsets.UTF_8));
     String helpPrefix = "xxx";
 
     HelpContext helpContext1 = new HelpContext() {
@@ -242,10 +243,10 @@ public class GenerateEclipseTocUtilityTest {
     };
     List<HelpContext> inContexts = Arrays.asList(helpContext1, helpContext2);
     Map<File, String> topicFileMap = new HashMap<>();
-    topicFileMap.put(file1, "My first chapter");
-    topicFileMap.put(file2, "My second chapter");
+    topicFileMap.put(file1.toFile(), "My first chapter");
+    topicFileMap.put(file2.toFile(), "My second chapter");
 
-    List<Context> outContexts = GenerateEclipseTocUtility.computeContexts(rootInFolder, helpPrefix, inContexts, topicFileMap);
+    List<Context> outContexts = GenerateEclipseTocUtility.computeContexts(rootInFolder.toFile(), helpPrefix, inContexts, topicFileMap);
     assertEquals("outContexts size", 2, outContexts.size());
     assertEquals("first outContext id", "first_page_context", outContexts.get(0).getId());
     assertEquals("first outContext title", "Page Context 1", outContexts.get(0).getTitle());

@@ -5,18 +5,17 @@
   <version>1.0.3-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
   <properties>
-    <guava.version>15.0</guava.version>
-    <hamcrest.core.version>1.1</hamcrest.core.version>
-    <junit.version>4.8</junit.version>
-    <jsoup.version>1.7.2</jsoup.version>
-    <maven.compiler.plugin.version>3.1</maven.compiler.plugin.version>
-    <maven.plugin.annotations.version>3.4</maven.plugin.annotations.version>
-    <maven.plugin.api.version>3.0</maven.plugin.api.version>
-    <maven.plugin.plugin.version>3.4</maven.plugin.plugin.version>
-    <maven.release.plugin.version>2.5.2</maven.release.plugin.version>
-    <mylyn.wikitext.core.version>2.5.0.v20150522-1430</mylyn.wikitext.core.version>
-    <project.java.version>1.7</project.java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.java.version>1.8</project.java.version>
+    <maven.compiler.plugin.version>3.8.1</maven.compiler.plugin.version>
+    <maven.plugin.api.version>3.0</maven.plugin.api.version>
+    <maven.plugin.plugin.version>3.6.1</maven.plugin.plugin.version>
+    <maven.release.plugin.version>2.5.3</maven.release.plugin.version>
+    <maven.deploy.plugin.version>2.8.2</maven.deploy.plugin.version>
+    <maven.plugin.annotations.version>3.4</maven.plugin.annotations.version>
+    <mylyn.wikitext.version>3.0.39</mylyn.wikitext.version>
+    <junit.version>4.8</junit.version>
+    <hamcrest.core.version>1.1</hamcrest.core.version>
   </properties>
   <dependencies>
     <dependency>
@@ -25,25 +24,15 @@
       <version>${maven.plugin.api.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.eclipse.mylyn.docs</groupId>
-      <artifactId>org.eclipse.mylyn.wikitext.core</artifactId>
-      <version>${mylyn.wikitext.core.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <version>${guava.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jsoup</groupId>
-      <artifactId>jsoup</artifactId>
-      <version>${jsoup.version}</version>
-    </dependency>
-    <dependency>
       <groupId>org.apache.maven.plugin-tools</groupId>
       <artifactId>maven-plugin-annotations</artifactId>
       <version>${maven.plugin.annotations.version}</version>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.mylyn.docs</groupId>
+      <artifactId>org.eclipse.mylyn.wikitext.toolkit</artifactId>
+      <version>${mylyn.wikitext.version}</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -74,24 +63,27 @@
         <artifactId>maven-plugin-plugin</artifactId>
         <version>${maven.plugin.plugin.version}</version>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <version>${maven.deploy.plugin.version}</version>
+        <configuration>
+          <altDeploymentRepository>internal.repo::default::file://${project.build.directory}/mvn-repo</altDeploymentRepository>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
-  <repositories>
-    <repository>
-      <id>mylyn.wikitext</id>
-      <url>http://dl.bintray.com/jmini/maven/</url>
-    </repository>
-  </repositories>
   <scm>
-    <connection>scm:git:https://github.com/jmini/geneclipsetoc.git</connection>
-    <developerConnection>scm:git:git@github.com:jmini/geneclipsetoc.git</developerConnection>
-    <url>https://github.com/jmini/geneclipsetoc</url>
+    <connection>scm:git:https://github.com/bsi-software/geneclipsetoc.git</connection>
+    <developerConnection>scm:git:git@github.com/bsi-software/geneclipsetoc.git</developerConnection>
+    <url>https://github.com/bsi-software/geneclipsetoc</url>
     <tag>HEAD</tag>
   </scm>
   <distributionManagement>
     <repository>
-      <id>bintray.jmini.maven</id>
-      <url>https://api.bintray.com/maven/jmini/maven/geneclipsetoc</url>
+      <id>internal.repo</id>
+      <name>Temporary Staging Repository</name>
+      <url>file://${project.build.directory}/mvn-repo</url>
     </repository>
   </distributionManagement>
   <profiles>

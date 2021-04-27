@@ -12,13 +12,17 @@ package com.bsiag.geneclipsetoc.internal;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
-import org.eclipse.mylyn.wikitext.core.parser.outline.OutlineItem;
-import org.eclipse.mylyn.wikitext.core.parser.util.MarkupToEclipseToc;
+import org.eclipse.mylyn.wikitext.parser.outline.OutlineItem;
+import org.eclipse.mylyn.wikitext.parser.util.MarkupToEclipseToc;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -28,10 +32,8 @@ import com.bsiag.geneclipsetoc.internal.contexts.Context;
 import com.bsiag.geneclipsetoc.internal.contexts.ContextUtility;
 import com.bsiag.geneclipsetoc.internal.contexts.Topic;
 import com.bsiag.geneclipsetoc.maven.HelpContext;
-import com.google.common.base.Charsets;
-import com.google.common.io.Files;
 
-public class GenerateEclipseTocUtility {
+public final class GenerateEclipseTocUtility {
 
   private static final String CHAR_QUOTE = "\"";
   private static final String CHAR_8220 = Character.toString((char) 8220);
@@ -39,6 +41,9 @@ public class GenerateEclipseTocUtility {
   private static final String CHAR_8222 = Character.toString((char) 8222);
   private static final int ROOT_LEVEL = 0;
   private static final String ROOT_ID = "id";
+
+  private GenerateEclipseTocUtility() {
+  }
 
   public static void generate(File rootInFolder, List<String> pages, String helpPrefix, File outTocFile, File outContextsFile, List<HelpContext> inContexts) throws IOException {
     if (!rootInFolder.exists() || !rootInFolder.isDirectory()) {
@@ -50,12 +55,12 @@ public class GenerateEclipseTocUtility {
     if (outTocFile == null) {
       throw new IllegalStateException("File outTocFile is not set.");
     }
-    if (inContexts != null && inContexts.size() > 0 && outContextsFile == null) {
+    if (inContexts != null && !inContexts.isEmpty() && outContextsFile == null) {
       throw new IllegalStateException("File outContextsFile is not set (but there are '" + inContexts.size() + "' HelpContexts)");
     }
 
     //Prepare the rootInFolder list (this will check that the files exist)
-    List<File> inFiles = new ArrayList<File>();
+    List<File> inFiles = new ArrayList<>();
     for (String p : pages) {
       if (p != null && p.length() > 0) {
         inFiles.add(computeFile(rootInFolder, p));
@@ -74,13 +79,12 @@ public class GenerateEclipseTocUtility {
       }
     }
 
-    Map<Integer, OutlineItemEx> nodeMap = new HashMap<Integer, OutlineItemEx>();
+    Map<Integer, OutlineItemEx> nodeMap = new HashMap<>();
     for (int i = 0; i < inFiles.size(); i++) {
       File inFile = inFiles.get(i);
 
-      String html = Files.toString(inFile, Charsets.UTF_8);
       String filePath = calculateFilePath(rootInFolder, inFile);
-      Document doc = Jsoup.parse(html);
+      Document doc = Jsoup.parse(inFile, StandardCharsets.UTF_8.name());
 
       computeOutlineNodes(nodeMap, doc, filePath);
 
@@ -90,11 +94,13 @@ public class GenerateEclipseTocUtility {
     }
 
     //Loop over the topicFileMap and verify that all values are set.
-    for (File inFile : topicFileMap.keySet()) {
-      if (topicFileMap.get(inFile) == null) {
-        String html = Files.toString(inFile, Charsets.UTF_8);
-        Document doc = Jsoup.parse(html);
-        topicFileMap.put(inFile, findFirstHeader(doc));
+    Iterator<Entry<File, String>> iterator = topicFileMap.entrySet().iterator();
+    while (iterator.hasNext()) {
+      Entry<File, String> entry = iterator.next();
+      if (entry.getValue() == null) {
+        File inFile = entry.getKey();
+        Document doc = Jsoup.parse(inFile, StandardCharsets.UTF_8.name());
+        entry.setValue(findFirstHeader(doc));
       }
     }
 
@@ -117,15 +123,15 @@ public class GenerateEclipseTocUtility {
     eclipseToc.setHtmlFile(root.getFilePath());
     eclipseToc.setHelpPrefix(helpPrefix);
     String tocContent = eclipseToc.createToc(root);
-    Files.createParentDirs(outTocFile);
-    Files.write(tocContent, outTocFile, Charsets.UTF_8);
+    Files.createDirectories(outTocFile.toPath().getParent());
+    Files.write(outTocFile.toPath(), tocContent.getBytes(StandardCharsets.UTF_8));
 
     //Compute Contexts File and write it
-    if (inContexts != null && inContexts.size() > 0) {
+    if (inContexts != null && !inContexts.isEmpty()) {
       List<Context> outContexts = computeContexts(rootInFolder, helpPrefix, inContexts, topicFileMap);
       String contextsContent = ContextUtility.toXml(outContexts);
-      Files.createParentDirs(outContextsFile);
-      Files.write(contextsContent, outContextsFile, Charsets.UTF_8);
+      Files.createDirectories(outContextsFile.toPath().getParent());
+      Files.write(outContextsFile.toPath(), contextsContent.getBytes(StandardCharsets.UTF_8));
     }
   }
 
@@ -152,7 +158,7 @@ public class GenerateEclipseTocUtility {
         if (hc.getTitle() != null && hc.getTitle().length() > 0) {
           context.setTitle(hc.getTitle());
         }
-        else if (topics.size() > 0) {
+        else if (!topics.isEmpty()) {
           context.setTitle(topics.get(0).getLabel());
         }
         context.setId(hc.getId());
@@ -264,12 +270,10 @@ public class GenerateEclipseTocUtility {
   }
 
   /**
-   * Find the id of a header tag. id is defined as id attribute of the header,
-   * or as id attribute of a nested "a" tag
+   * Find the id of a header tag. id is defined as id attribute of the header, or as id attribute of a nested "a" tag
    *
    * @param element
-   *          element corresponding to the HTML header tag (h1, h2, h3, h4,
-   *          h5 or h6)
+   *          element corresponding to the HTML header tag (h1, h2, h3, h4, h5 or h6)
    * @return id
    */
   static String findId(Element element) {
@@ -300,8 +304,7 @@ public class GenerateEclipseTocUtility {
   }
 
   /**
-   * Find the first header (h1, h2, h3, h4, h5 or h6) and returns the text
-   * content .
+   * Find the first header (h1, h2, h3, h4, h5 or h6) and returns the text content .
    *
    * @param doc
    *          the html content as JSoup document

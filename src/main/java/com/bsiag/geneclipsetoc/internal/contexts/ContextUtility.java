@@ -12,16 +12,12 @@ package com.bsiag.geneclipsetoc.internal.contexts;
 
 import java.util.List;
 
-import com.google.common.base.Splitter;
 import com.google.common.xml.XmlEscapers;
 
 /**
  * @author jbr
  */
 public class ContextUtility {
-  /**
-   *
-   */
   private static final String INDENTATION = "    ";
   private static final String NEW_LINE = "\n";
 
@@ -48,9 +44,8 @@ public class ContextUtility {
           sb.append(INDENTATION);
           sb.append(INDENTATION);
           sb.append("<description>");
-          Splitter splitter = Splitter.onPattern("\r?\n");
           boolean needNewLine = false;
-          for (String line : splitter.split(context.getDescription())) {
+          for (String line : context.getDescription().split("\r?\n")) {
             if (needNewLine) {
               sb.append(NEW_LINE);
             }

@@ -12,6 +12,8 @@ package com.bsiag.geneclipsetoc.maven;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.List;
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -21,8 +23,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import com.bsiag.geneclipsetoc.internal.GenerateEclipseTocUtility;
-import com.google.common.base.Charsets;
-import com.google.common.io.Files;
 
 @Mojo(name = "geneclipsetoc")
 public class GenerateEclipseTocMojo extends AbstractMojo {
@@ -45,15 +45,13 @@ public class GenerateEclipseTocMojo extends AbstractMojo {
   protected File sourceFolder;
 
   /**
-   * Ordered list of HTLM pages.
-   * If set, {@link #pagesListFile} can not be set.
+   * Ordered list of HTLM pages. If set, {@link #pagesListFile} can not be set.
    */
   @Parameter(property = PAGES)
   protected List<String> pages;
 
   /**
-   * External file containing the ordered list of pages.
-   * If set, {@link #pages} can not be set.
+   * External file containing the ordered list of pages. If set, {@link #pages} can not be set.
    */
   @Parameter(property = PAGES_LIST_FILE)
   protected File pagesListFile;
@@ -99,7 +97,7 @@ public class GenerateEclipseTocMojo extends AbstractMojo {
         throw new MojoFailureException("The pages list is defined using a file (<" + PAGES_LIST_FILE + "> is set),  <" + PAGES + "> configuration can not be used");
       }
       try {
-        pList = Files.readLines(pagesListFile, Charsets.UTF_8);
+        pList = Files.readAllLines(pagesListFile.toPath(), StandardCharsets.UTF_8);
       }
       catch (IOException e) {
         throw new MojoFailureException("Error while reading the file defined in <" + PAGES_LIST_FILE + ">", e);

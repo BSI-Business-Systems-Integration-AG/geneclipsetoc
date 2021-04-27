@@ -10,7 +10,7 @@
  ******************************************************************************/
 package com.bsiag.geneclipsetoc.internal;
 
-import org.eclipse.mylyn.wikitext.core.parser.outline.OutlineItem;
+import org.eclipse.mylyn.wikitext.parser.outline.OutlineItem;
 
 /**
  * Extension of the Mylyn Docs {@link OutlineItem} in order to be able to set the filePath.
